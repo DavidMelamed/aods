@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+# optional dependencies
+pyod
+lightgbm
+xgboost
+ortools
+apache-airflow

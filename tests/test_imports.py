@@ -19,6 +19,7 @@ MODULES = [
     'aods.orchestrator.dags',
     'aods.pipeline',
     'aods.visualization.plots',
+
 ]
 
 

@@ -10,17 +10,17 @@ This repository provides a minimal reference implementation matching the high-le
 - **Portfolio Optimizer**: MILP optimisation using OR-Tools with a greedy fallback.
 - **Dashboard**: Small FastAPI app exposing an endpoint for ranked opportunities.
 - **Orchestrator**: Airflow DAG skeleton calling the pipeline.
-- **Pipeline Runner**: Command line utility in `aods.pipeline` that executes the full pipeline.
 
 ## Development
 
-Install dependencies (optional extras used if available):
+Install dependencies using the provided setup script (optional extras will be
+installed if network access is available):
 
 ```bash
-pip install -r requirements.txt
+./setup.sh
 ```
 
-Run tests with `pytest`:
+Run tests with `pytest` after installing dependencies:
 
 ```bash
 pytest
@@ -57,3 +57,4 @@ costs = [op['cost'] for op in ops]
 plt = scatter_roi_vs_cost(scores, costs)
 plt.show()
 ```
+

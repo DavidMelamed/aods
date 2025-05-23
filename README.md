@@ -13,17 +13,20 @@ This repository provides a minimal reference implementation matching the high-le
 
 ## Development
 
-Install dependencies (optional extras used if available):
+Install dependencies using the provided setup script (optional extras will be
+installed if network access is available):
 
 ```bash
-pip install -r requirements.txt
+./setup.sh
 ```
 
-Run tests with `pytest`:
+Run tests with `pytest` after installing dependencies:
 
 ```bash
 pytest
 ```
+
+Run the demo pipeline:
 
 ## Extended Features
 

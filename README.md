@@ -25,3 +25,36 @@ Run tests with `pytest` after installing dependencies:
 ```bash
 pytest
 ```
+
+Run the demo pipeline:
+
+## Extended Features
+
+- Additional connectors for simulated product pricing and social trends
+- ROI utilities implementing expected value and risk-adjusted return
+- End-to-end pipeline (`python -m aods.pipeline`) running ingestion,
+  anomaly detection, model training, ROI scoring and portfolio optimisation
+- Basic matplotlib visualisations for opportunity score vs cost
+
+### Running the Pipeline
+
+Execute the pipeline directly:
+
+```bash
+PYTHONPATH=src python -m aods.pipeline
+```
+
+### Visualising Results
+
+After running the pipeline you can generate a scatter plot of the
+selected opportunities:
+
+```python
+from aods.visualization.plots import scatter_roi_vs_cost
+
+scores = [op['score'] for op in ops]
+costs = [op['cost'] for op in ops]
+plt = scatter_roi_vs_cost(scores, costs)
+plt.show()
+```
+

@@ -6,13 +6,17 @@ MODULES = [
     'aods.ingestion.crypto_exchange',
     'aods.ingestion.gift_card_market',
     'aods.analytics.arbitrage',
-
+    'aods.ingestion.product_price',
+    'aods.ingestion.social_trends',
     'aods.analytics.anomaly',
     'aods.analytics.hypothesis',
+    'aods.analytics.roi',
     'aods.models.predictive',
     'aods.optimizer.portfolio',
     'aods.dashboard.api',
     'aods.orchestrator.dags',
+    'aods.pipeline',
+    'aods.visualization.plots',
 ]
 
 

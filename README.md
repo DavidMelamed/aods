@@ -25,14 +25,35 @@ Run tests with `pytest`:
 pytest
 ```
 
-### New Features
+## Extended Features
 
-- **DataForSEO Integration**: connectors for Keywords Data and SERP APIs (simulated when offline).
-- **Unconventional Markets**: crypto exchange and gift card market connectors with cross-market arbitrage detection utilities.
-- **Pipeline Runner**: `python -m aods.pipeline` executes the end-to-end demo pulling from all connectors, training a model and outputting opportunities.
+- Additional connectors for simulated product pricing and social trends
+- ROI utilities implementing expected value and risk-adjusted return
+- End-to-end pipeline (`python -m aods.pipeline`) running ingestion,
+  anomaly detection, model training, ROI scoring and portfolio optimisation
+- Basic matplotlib visualisations for opportunity score vs cost
 
-Run the pipeline:
+### Running the Pipeline
+
+Execute the pipeline directly:
+
 
 ```bash
 PYTHONPATH=src python -m aods.pipeline
 ```
+
+
+### Visualising Results
+
+After running the pipeline you can generate a scatter plot of the
+selected opportunities:
+
+```python
+from aods.visualization.plots import scatter_roi_vs_cost
+
+scores = [op['score'] for op in ops]
+costs = [op['cost'] for op in ops]
+plt = scatter_roi_vs_cost(scores, costs)
+plt.show()
+```
+

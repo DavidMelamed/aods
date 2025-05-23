@@ -10,6 +10,7 @@ This repository provides a minimal reference implementation matching the high-le
 - **Portfolio Optimizer**: MILP optimisation using OR-Tools with a greedy fallback.
 - **Dashboard**: Small FastAPI app exposing an endpoint for ranked opportunities.
 - **Orchestrator**: Airflow DAG skeleton calling the pipeline.
+- **Pipeline Runner**: Command line utility in `aods.pipeline` that executes the full pipeline.
 
 ## Development
 
@@ -24,6 +25,9 @@ Run tests with `pytest`:
 ```bash
 pytest
 ```
+
+
+Run the demo pipeline:
 
 ## Extended Features
 

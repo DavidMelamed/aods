@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+# optional dependencies
+pyod
+lightgbm
+xgboost
+ortools
+apache-airflow
+exa-py
+tavily
+apify-client
+scrapeowl
+astrapy
+websockets

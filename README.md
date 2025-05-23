@@ -40,9 +40,11 @@ Run the demo pipeline:
 
 Execute the pipeline directly:
 
+
 ```bash
 PYTHONPATH=src python -m aods.pipeline
 ```
+
 
 ### Visualising Results
 

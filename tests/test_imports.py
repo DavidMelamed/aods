@@ -8,6 +8,10 @@ if root not in sys.path:
 
 MODULES = [
     'aods.ingestion.keyword_api',
+    'aods.ingestion.dataforseo',
+    'aods.ingestion.crypto_exchange',
+    'aods.ingestion.gift_card_market',
+    'aods.analytics.arbitrage',
     'aods.ingestion.product_price',
     'aods.ingestion.social_trends',
     'aods.analytics.anomaly',
@@ -26,3 +30,4 @@ MODULES = [
 def test_imports():
     for mod in MODULES:
         import_module(mod)
+

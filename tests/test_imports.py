@@ -1,4 +1,10 @@
 from importlib import import_module
+import os
+import sys
+
+root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src"))
+if root not in sys.path:
+    sys.path.insert(0, root)
 
 MODULES = [
     'aods.ingestion.keyword_api',

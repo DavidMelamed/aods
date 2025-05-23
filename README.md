@@ -26,7 +26,6 @@ Run tests with `pytest`:
 pytest
 ```
 
-
 Run the demo pipeline:
 
 ## Extended Features

@@ -6,6 +6,7 @@ RULE_THRESHOLD = 0.1
 
 
 def generate_hypotheses(records: List[Dict]) -> List[Dict]:
+
     """Generate opportunity hypotheses from diverse records."""
     hyps = []
     for rec in records:

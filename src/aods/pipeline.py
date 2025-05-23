@@ -50,3 +50,4 @@ if __name__ == "__main__":
     ops = run()
     for op in ops:
         print(op)
+

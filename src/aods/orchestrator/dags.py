@@ -8,7 +8,17 @@ try:
 except Exception:  # pragma: no cover - optional
     DAG = None
 
-from aods.pipeline import run_pipeline
+from aods.ingestion.keyword_api import KeywordAPIConnector
+from aods.analytics.hypothesis import generate_hypotheses
+
+
+def run_pipeline():
+    connector = KeywordAPIConnector()
+    raw = connector.pull()
+    parsed = connector.parse(raw)
+    hyps = generate_hypotheses(parsed)
+    return hyps
+
 
 if DAG:
     with DAG(

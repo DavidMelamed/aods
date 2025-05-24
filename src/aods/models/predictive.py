@@ -4,10 +4,12 @@ import logging
 from typing import Iterable, List
 import math
 
+
 try:
     import lightgbm as lgb
 except Exception:  # pragma: no cover - optional
     lgb = None
+
     logging.warning("lightgbm not available; using simple logistic regression")
 
 
@@ -57,3 +59,4 @@ class ConversionRateModel:
         if self.model is None:
             return self._predict_logistic(X_list)
         return self.model.predict(X_list).tolist()
+

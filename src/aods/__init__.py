@@ -1,2 +1,7 @@
-from .pipeline import run_pipeline
+
+"""Autonomous Opportunity Discovery System."""
+
+from .pipeline import run
+
+__all__ = ['run']
 

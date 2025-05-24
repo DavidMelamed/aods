@@ -10,7 +10,6 @@ except Exception:  # pragma: no cover - optional
     pywraplp = None
 
 
-
     logging.warning("OR-Tools not available; using dynamic-programming fallback")
 
 
@@ -52,7 +51,6 @@ def optimise_portfolio(scores: List[float], costs: List[float], budget: float) -
                 selected.append(i)
                 spent += costs[i]
         return selected
-
 
     solver = pywraplp.Solver.CreateSolver('CBC')
     x = [solver.IntVar(0, 1, f'x{i}') for i in range(n)]

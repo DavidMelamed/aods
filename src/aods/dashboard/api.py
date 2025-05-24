@@ -13,6 +13,7 @@ def fetch_opportunities() -> List[dict]:
     return pipe.run()
 
 
+
 def get_top_opportunities():
     # Placeholder data
     return [
@@ -21,11 +22,19 @@ def get_top_opportunities():
     ]
 
 
-
 @app.get("/opportunities")
 def opportunities():
+    return get_top_opportunities()
 
-    return fetch_opportunities()
+from fastapi import WebSocket
+
+@app.websocket("/mcp")
+async def mcp_endpoint(ws: WebSocket):
+    await ws.accept()
+    ops = get_top_opportunities()
+    await ws.send_json(ops)
+    await ws.close()
+
 
 
 try:

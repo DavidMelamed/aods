@@ -2,6 +2,8 @@ from importlib import import_module
 
 MODULES = [
     'aods.ingestion.keyword_api',
+    'aods.analytics.anomaly',
+    'aods.analytics.hypothesis',
     'aods.ingestion.ad_auction',
     'aods.ingestion.product_prices',
     'aods.ingestion.social_trends',
@@ -20,6 +22,14 @@ MODULES = [
     'aods.optimizer.portfolio',
     'aods.dashboard.api',
     'aods.orchestrator.dags',
+    'aods.ingestion.exa_ai',
+    'aods.ingestion.tavily',
+    'aods.ingestion.apify_connector',
+    'aods.ingestion.scrapeowl',
+    'aods.storage.astra',
+    'aods.dashboard.mcp_server',
+]
+
     'aods.pipeline',
     'aods.visualization.plots',
 
@@ -30,6 +40,7 @@ import sys
 root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src"))
 if root not in sys.path:
     sys.path.insert(0, root)
+
 
 
 def test_imports():

@@ -1,6 +1,11 @@
 from .anomaly import detect_anomalies
 from .hypothesis import generate_hypotheses
-from .roi import expected_value, risk_adjusted_return, score_opportunity
+from .roi import (
+    expected_value,
+    risk_adjusted_return,
+    score_opportunity,
+    compute_scores,
+)
 
 __all__ = [
     'detect_anomalies',
@@ -8,4 +13,5 @@ __all__ = [
     'expected_value',
     'risk_adjusted_return',
     'score_opportunity',
+    'compute_scores',
 ]

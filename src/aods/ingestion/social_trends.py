@@ -2,6 +2,7 @@ from .base import DataConnector
 import random
 
 class SocialTrendConnector(DataConnector):
+
     """Simulated social media trend metrics."""
 
     def pull(self):
@@ -21,3 +22,4 @@ class SocialTrendConnector(DataConnector):
 
     def upsert(self, records):
         return super().upsert(records)
+

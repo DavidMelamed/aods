@@ -1,5 +1,6 @@
 """Airflow DAG for AODS pipeline."""
 
+
 from datetime import datetime
 
 try:
@@ -8,8 +9,10 @@ try:
 except Exception:  # pragma: no cover - optional
     DAG = None
 
-from aods.pipeline import Pipeline
 
+from aods.pipeline import Pipeline
+from aods.ingestion.keyword_api import KeywordAPIConnector
+from aods.analytics.hypothesis import generate_hypotheses
 
 def run_pipeline():
     pipe = Pipeline()
@@ -23,4 +26,6 @@ if DAG:
         start_date=datetime(2024, 1, 1),
         catchup=False,
     ) as dag:
+
         PythonOperator(task_id="pipeline", python_callable=run_pipeline)
+

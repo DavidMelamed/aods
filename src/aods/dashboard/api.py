@@ -1,3 +1,4 @@
+
 """FastAPI + optional GraphQL API for opportunities."""
 
 from fastapi import FastAPI
@@ -12,8 +13,18 @@ def fetch_opportunities() -> List[dict]:
     return pipe.run()
 
 
+def get_top_opportunities():
+    # Placeholder data
+    return [
+        {"keyword": "ai", "score": 1.0},
+        {"keyword": "ml", "score": 0.8},
+    ]
+
+
+
 @app.get("/opportunities")
 def opportunities():
+
     return fetch_opportunities()
 
 
@@ -35,3 +46,6 @@ try:
     app.add_route("/graphql", graphql_app)
 except Exception:  # pragma: no cover - optional dependency
     pass
+
+    return get_top_opportunities()
+

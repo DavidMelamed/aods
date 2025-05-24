@@ -1,4 +1,5 @@
-"""Airflow DAG skeleton for AODS pipeline."""
+"""Airflow DAG for AODS pipeline."""
+
 
 from datetime import datetime
 
@@ -8,16 +9,15 @@ try:
 except Exception:  # pragma: no cover - optional
     DAG = None
 
+
+from aods.pipeline import Pipeline
 from aods.ingestion.keyword_api import KeywordAPIConnector
 from aods.analytics.hypothesis import generate_hypotheses
 
-
 def run_pipeline():
-    connector = KeywordAPIConnector()
-    raw = connector.pull()
-    parsed = connector.parse(raw)
-    hyps = generate_hypotheses(parsed)
-    return hyps
+    pipe = Pipeline()
+    pipe.run()
+
 
 if DAG:
     with DAG(
@@ -26,5 +26,6 @@ if DAG:
         start_date=datetime(2024, 1, 1),
         catchup=False,
     ) as dag:
-        task = PythonOperator(task_id="run", python_callable=run_pipeline)
-        task
+
+        PythonOperator(task_id="pipeline", python_callable=run_pipeline)
+

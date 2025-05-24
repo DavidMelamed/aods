@@ -1,10 +1,8 @@
 """Simple anomaly detection wrapper."""
 
 import logging
-
 import statistics
 from typing import Iterable, List
-
 
 try:
     from pyod.models.iforest import IForest

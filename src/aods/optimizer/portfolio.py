@@ -10,6 +10,7 @@ except Exception:  # pragma: no cover - optional
     pywraplp = None
 
 
+
     logging.warning("OR-Tools not available; using dynamic-programming fallback")
 
 
@@ -34,6 +35,7 @@ def _dp_knapsack(scores: List[float], costs: List[float], budget: float) -> List
             selected.append(i-1)
             b -= int(costs[i-1])
     return list(reversed(selected))
+
 
 
 def optimise_portfolio(scores: List[float], costs: List[float], budget: float) -> List[int]:

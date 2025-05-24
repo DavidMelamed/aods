@@ -1,105 +1,75 @@
 
-"""Simple pipeline runner orchestrating connectors and analytics."""
-from typing import List, Dict
-from aods.ingestion.keyword_api import KeywordAPIConnector
-from aods.ingestion.product_price import ProductPriceConnector
-from aods.ingestion.social_trends import SocialTrendConnector
-from aods.ingestion.dataforseo import DataForSEOKeywordsConnector, DataForSEOSerpConnector
-from aods.ingestion.crypto_exchange import CryptoExchangeConnector
-from aods.ingestion.gift_card_market import GiftCardMarketConnector
-from aods.analytics.hypothesis import generate_hypotheses
-from aods.analytics.anomaly import detect_anomalies
-from aods.analytics.roi import score_opportunity
-from aods.analytics.arbitrage import price_arbitrage_opportunities
-from aods.models.predictive import ConversionRateModel
-from aods.optimizer.portfolio import optimise_portfolio
+"""End-to-end pipeline orchestrating ingestion, modelling and optimisation."""
+
+from typing import List
+import logging
+from .ingestion import (
+    KeywordAPIConnector,
+    AdAuctionConnector,
+    ProductPriceConnector,
+    SocialTrendConnector,
+    SaaSPricingConnector,
+)
+from .analytics.hypothesis import generate_hypotheses
+from .analytics.anomaly import detect_anomalies
+from .models.predictive import ConversionRateModel
+from .analytics.roi import compute_scores
+from .optimizer.portfolio import optimise_portfolio
 
 
-def run():
-    # Pull data from connectors
-    connectors = [
-        KeywordAPIConnector(),
-        DataForSEOKeywordsConnector(),
-        DataForSEOSerpConnector(),
-        CryptoExchangeConnector(),
-        GiftCardMarketConnector(),
-    ]
-    all_records = []
-    for c in connectors:
-        raw = c.pull()
-        parsed = c.parse(raw)
-        all_records.extend(parsed)
-
-    # For keyword-type records, generate hypotheses
-    keyword_records = [r for r in all_records if r.get("keyword")]
-    hyps = generate_hypotheses(keyword_records)
-
-    # Basic anomaly scores on search volume or price if present
-    volumes = [r.get("search_volume", r.get("price", 0)) for r in keyword_records]
-    scores = detect_anomalies(volumes)
-
-    # Basic model: train on dummy data
-    model = ConversionRateModel()
-    model.fit([[r.get("search_volume", 0)] for r in keyword_records], scores)
-    preds = model.predict([[r.get("search_volume", 0)] for r in keyword_records])
-
-    # Portfolio selection using costs if available or 1
-    costs = [r.get("cpc", 1.0) for r in keyword_records]
-    selected_idx = optimise_portfolio(preds, costs, budget=5.0)
-    selected = [keyword_records[i] for i in selected_idx]
-
-    # Identify crypto arbitrage
-    crypto_records = [r for r in all_records if r.get("asset")]
-    crypto_ops = price_arbitrage_opportunities(crypto_records, "asset", "price", "exchange")
-
-    # Show results
-    print("Keyword opportunities:", selected)
-    print("Crypto arbitrage:", crypto_ops)
+logging.basicConfig(level=logging.INFO)
 
 
-if __name__ == "__main__":
-    run()
+class Pipeline:
+    def __init__(self, budget: float = 100.0):
+        self.connectors = [
+            KeywordAPIConnector(),
+            AdAuctionConnector(),
+            ProductPriceConnector(),
+            SocialTrendConnector(),
+            SaaSPricingConnector(),
+        ]
+        self.model = ConversionRateModel()
+        self.budget = budget
+
+    def run(self) -> List[dict]:
+        records: List[dict] = []
+        for c in self.connectors:
+            raw = c.pull()
+            parsed = c.parse(raw)
+            records.extend(parsed)
+        logging.info("pulled %d records", len(records))
+
+        hyps = generate_hypotheses(records)
+        logging.info("generated %d hypotheses", len(hyps))
+
+        metrics = [r.get("cpc", 1.0) for r in records]
+        detect_anomalies(metrics)  # side effect only
+
+        X = [[r.get("search_volume", 1000), r.get("cpc", 1.0)] for r in records]
+        y = [r.get("conv_rate", 0.05) for r in records]
+        self.model.fit(X, y)
+        preds = self.model.predict(X)
+
+        revenues = [p * 10 for p in preds]
+        costs = [r.get("cpc", 1.0) for r in records]
+        std_devs = [0.1 for _ in preds]
+        scores = compute_scores(preds, revenues, costs, std_devs)
+
+        selected_idx = optimise_portfolio(scores, costs, self.budget)
+        opps = [records[i] for i in selected_idx]
+        for i, op in zip(selected_idx, opps):
+            op["score"] = scores[i]
+        return opps
 
 
-import random
-
-
-def run():
-    connectors = [KeywordAPIConnector(), ProductPriceConnector(), SocialTrendConnector()]
-    all_records = []
-    for conn in connectors:
-        raw = conn.pull()
-        parsed = conn.parse(raw)
-        all_records.extend(parsed)
-
-    # Simple numeric metric for anomaly detection
-    metrics = [r.get("search_volume", r.get("views", r.get("price", 0))) for r in all_records]
-    scores = detect_anomalies(metrics)
-
-    hyps = generate_hypotheses([{**r, "score": s} for r, s in zip(all_records, scores)])
-
-    # Fake features and target for model training
-    model = ConversionRateModel()
-    X = [[random.random()] for _ in hyps]
-    y = [random.random() for _ in hyps]
-    model.fit(X, y)
-    p_success = model.predict(X)
-
-    costs = [random.uniform(1.0, 10.0) for _ in hyps]
-    revenues = [random.uniform(5.0, 20.0) for _ in hyps]
-    vols = [random.uniform(0.5, 2.0) for _ in hyps]
-    scores = [
-        score_opportunity(p, rev, cost, vol, payback_months=6)
-        for p, rev, cost, vol in zip(p_success, revenues, costs, vols)
-    ]
-
-    selected = optimise_portfolio(scores, costs, budget=15.0)
-    opportunities = [hyps[i] | {"score": scores[i], "cost": costs[i]} for i in selected]
-    return opportunities
+def main():
+    pipe = Pipeline()
+    opps = pipe.run()
+    for o in opps:
+        print(o)
 
 
 if __name__ == "__main__":
-    ops = run()
-    for op in ops:
-        print(op)
+    main()
 

@@ -1,7 +1,8 @@
-from aods.pipeline import run_pipeline
+
+from aods.pipeline import Pipeline
 
 
 def test_pipeline_runs():
-    result = run_pipeline()
-    assert isinstance(result, list)
-
+    pipe = Pipeline()
+    opps = pipe.run()
+    assert isinstance(opps, list)

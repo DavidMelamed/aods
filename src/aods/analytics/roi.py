@@ -1,10 +1,13 @@
-"""ROI and risk-adjusted scoring utilities."""
 
+"""ROI and risk computation utilities."""
+
+from typing import Iterable, List
 from typing import Sequence
 import math
 
 
 def expected_value(p_success: float, revenue: float, cost: float) -> float:
+
     """Compute expected value."""
     return p_success * (revenue - cost) - (1 - p_success) * cost
 

@@ -1,5 +1,4 @@
 
-
 # Repository Guidelines
 
 - Run `python -m pytest -q` after every change and include the results in the PR description.
@@ -28,3 +27,4 @@ These instructions apply to the entire repository.
 ## Pull Request Notes
 - Summarize key changes referencing file paths with line numbers.
 - Mention test results with the exact command output.
+

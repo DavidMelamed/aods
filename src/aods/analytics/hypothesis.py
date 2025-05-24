@@ -19,5 +19,4 @@ def generate_hypotheses(records: List[Dict]) -> List[Dict]:
             hyps.append({"type": "trend", "id": rec.get("topic"), "reason": "viral topic"})
 
 
-
     return hyps

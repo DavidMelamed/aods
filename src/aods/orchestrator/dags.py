@@ -1,4 +1,5 @@
-"""Airflow DAG skeleton for AODS pipeline."""
+
+"""Airflow DAG for AODS pipeline."""
 
 from datetime import datetime
 
@@ -19,6 +20,14 @@ def run_pipeline():
     hyps = generate_hypotheses(parsed)
     return hyps
 
+
+from aods.pipeline import Pipeline
+
+def run_pipeline():
+    pipe = Pipeline()
+    pipe.run()
+
+
 if DAG:
     with DAG(
         dag_id="aods_pipeline",
@@ -26,5 +35,7 @@ if DAG:
         start_date=datetime(2024, 1, 1),
         catchup=False,
     ) as dag:
+
         task = PythonOperator(task_id="run", python_callable=run_pipeline)
         task
+

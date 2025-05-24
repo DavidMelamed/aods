@@ -13,6 +13,7 @@ This repository provides a minimal reference implementation matching the high-le
 
 ## Development
 
+
 Install dependencies using the provided setup script (optional extras will be
 installed if network access is available):
 
@@ -22,10 +23,24 @@ installed if network access is available):
 
 Run tests with `pytest` after installing dependencies:
 
+
 ```bash
 pytest
 ```
 
+### Frontend with CopilotKit
+
+The optional dashboard is built using **Next.js** with the `copilotkit` library.
+Install dependencies inside `frontend/` and start the dev server:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+The app will fetch opportunities from the FastAPI backend at `http://localhost:8000/opportunities`.
+=======
 Run the demo pipeline:
 
 ## Extended Features
@@ -59,4 +74,5 @@ costs = [op['cost'] for op in ops]
 plt = scatter_roi_vs_cost(scores, costs)
 plt.show()
 ```
+
 

@@ -9,6 +9,7 @@ try:
 except Exception:  # pragma: no cover - optional
     pywraplp = None
 
+
     logging.warning("OR-Tools not available; using dynamic-programming fallback")
 
 

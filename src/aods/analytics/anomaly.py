@@ -1,6 +1,7 @@
 """Simple anomaly detection wrapper."""
 
 import logging
+
 import statistics
 from typing import Iterable, List
 

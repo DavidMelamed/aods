@@ -10,6 +10,7 @@ try:
 except Exception:  # pragma: no cover - optional
     lgb = None
 
+
     logging.warning("lightgbm not available; using simple logistic regression")
 
 

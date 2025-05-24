@@ -4,6 +4,7 @@ from fastapi import FastAPI
 
 app = FastAPI(title="AODS")
 
+
 def get_top_opportunities():
     # Placeholder data
     return [

@@ -64,6 +64,22 @@ The ingestion layer now includes optional connectors for external data services:
 
 These connectors are loaded only if their respective libraries are installed.
 
+## Configuration
+
+Several connectors require API keys. Set these via environment variables before
+running the pipeline:
+
+```bash
+export EXA_API_KEY=<your-exa-key>
+export TAVILY_API_KEY=<your-tavily-key>
+export APIFY_TOKEN=<your-apify-token>
+export ASTRA_TOKEN=<your-astra-token>
+export ASTRA_ENDPOINT=<your-astra-endpoint>
+```
+
+The `DataForSEO*` connectors accept `API_KEY` and `API_SECRET` arguments or use
+`DATAFORSEO_KEY` and `DATAFORSEO_SECRET` environment variables.
+
 ## Vector Storage
 
 Embeddings can be stored in **Astra DB** using the `AstraVectorStore` wrapper. Configure it with your Astra token and API endpoint to enable vector similarity queries.

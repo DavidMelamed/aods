@@ -14,6 +14,7 @@ from .price_api import PriceAPIConnector
 from .dataforseo import DataForSEOKeywordsConnector, DataForSEOSerpConnector
 from .market_news import MarketNewsConnector
 from .research_papers import ResearchPaperConnector
+
 from .base import DataConnector
 
 __all__ = [
@@ -34,6 +35,7 @@ __all__ = [
     'DataForSEOSerpConnector',
     'MarketNewsConnector',
     'ResearchPaperConnector',
+
     'DataConnector',
 ]
 

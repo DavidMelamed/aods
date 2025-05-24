@@ -41,13 +41,13 @@ def optimise_portfolio(scores: List[float], costs: List[float], budget: float) -
     """Select opportunities under budget."""
     n = len(scores)
     if pywraplp is None:
-        # Dynamic-programming fallback when OR-Tools is missing
+
         try:
             return _dp_knapsack(scores, costs, budget)
-        except Exception:  # pragma: no cover - safety fallback
-            order = sorted(
-                range(n), key=lambda i: scores[i] / (costs[i] or 1), reverse=True
-            )
+        except Exception:
+            # Fallback: greedy selection
+            order = sorted(range(n), key=lambda i: scores[i] / (costs[i] or 1), reverse=True)
+
             selected = []
             spent = 0.0
             for i in order:

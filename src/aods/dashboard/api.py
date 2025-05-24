@@ -16,3 +16,4 @@ def get_top_opportunities():
 @app.get("/opportunities")
 def opportunities():
     return get_top_opportunities()
+

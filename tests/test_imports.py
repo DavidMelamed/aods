@@ -11,6 +11,7 @@ MODULES = [
     'aods.ingestion.dataforseo',
     'aods.ingestion.crypto_exchange',
     'aods.ingestion.gift_card_market',
+    'aods.ingestion.price_api',
     'aods.analytics.arbitrage',
     'aods.ingestion.product_price',
     'aods.ingestion.social_trends',

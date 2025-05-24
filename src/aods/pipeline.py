@@ -1,6 +1,6 @@
 
 """Simple pipeline runner orchestrating connectors and analytics."""
-
+from typing import List, Dict
 from aods.ingestion.keyword_api import KeywordAPIConnector
 from aods.ingestion.product_price import ProductPriceConnector
 from aods.ingestion.social_trends import SocialTrendConnector
@@ -59,8 +59,7 @@ def run():
 
 if __name__ == "__main__":
     run()
-=======
-"""End-to-end pipeline runner for the AODS example."""
+
 
 import random
 

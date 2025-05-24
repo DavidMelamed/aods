@@ -8,6 +8,7 @@ RULE_THRESHOLD = 0.1
 def generate_hypotheses(records: List[Dict]) -> List[Dict]:
 
 
+
     """Generate opportunity hypotheses from diverse records."""
     hyps = []
     for rec in records:
@@ -17,5 +18,6 @@ def generate_hypotheses(records: List[Dict]) -> List[Dict]:
             hyps.append({"type": "product", "id": rec.get("sku"), "reason": "cheap price"})
         if rec.get("engagement_rate") and rec.get("engagement_rate") > 0.15:
             hyps.append({"type": "trend", "id": rec.get("topic"), "reason": "viral topic"})
+
 
     return hyps

@@ -19,6 +19,7 @@ def run_pipeline():
     hyps = generate_hypotheses(parsed)
     return hyps
 
+
 if DAG:
     with DAG(
         dag_id="aods_pipeline",

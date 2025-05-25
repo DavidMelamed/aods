@@ -1,0 +1,13 @@
+{
+  "expectation_suite_name": "ad_auction_raw",
+  "expectations": [
+    {
+      "expectation_type": "expect_column_to_exist",
+      "kwargs": {"column": "keyword"}
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_between",
+      "kwargs": {"column": "avg_cpc", "min_value": 0}
+    }
+  ]
+}

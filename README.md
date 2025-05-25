@@ -42,6 +42,14 @@ Run the pipeline directly:
 PYTHONPATH=src python -m aods.pipeline
 ```
 
+Train models from existing feature data:
+
+```bash
+PYTHONPATH=src python train_models.py
+```
+
+Models are saved under `models/` and automatically loaded by the pipeline for scoring.
+
 Start the API (requires `uvicorn`):
 
 ```bash

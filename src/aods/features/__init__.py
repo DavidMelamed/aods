@@ -1,3 +1,3 @@
-from .build_features import build
+from ..feature_store import build_feature_table
 
-__all__ = ['build']
+__all__ = ["build_feature_table"]

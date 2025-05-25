@@ -1,61 +1,58 @@
+"""FastAPI endpoints for opportunity review."""
+from __future__ import annotations
 
-"""FastAPI + optional GraphQL API for opportunities."""
-
+import os
+import json
+from pathlib import Path
 from typing import List
 
 try:
-    from fastapi import FastAPI, WebSocket
+    from fastapi import FastAPI, WebSocket, Depends, HTTPException, Header
+    from fastapi.middleware.cors import CORSMiddleware
 except Exception:  # pragma: no cover - optional dependency
     FastAPI = None
     WebSocket = None
 
-from ..pipeline import Pipeline
+from ..pipeline import OPPS_PATH
+from ..execution.router import execute
 
-app = FastAPI(title="AODS") if FastAPI else None
-pipe = Pipeline()
+if FastAPI:
+    app = FastAPI(title="AODS")
+    API_KEY = os.getenv("AODS_API_KEY", "testkey")
 
+    def load_opportunities() -> List[dict]:
+        if OPPS_PATH.exists():
+            with OPPS_PATH.open("r", encoding="utf-8") as fh:
+                return json.load(fh)
+        return []
 
-def fetch_opportunities() -> List[dict]:
-    """Run the pipeline and return ranked opportunities."""
-    return pipe.run()
+    def fetch_opportunities() -> List[dict]:
+        return load_opportunities()
 
+    def check_key(api_key: str = Header(..., alias="X-API-Key")) -> str:
+        if api_key != API_KEY:
+            raise HTTPException(status_code=401, detail="invalid api key")
+        return api_key
 
+    app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
-def get_top_opportunities():
-    return fetch_opportunities()
-
-
-if app:
     @app.get("/opportunities")
-    def opportunities():
-        return fetch_opportunities()
+    def opportunities(_: str = Depends(check_key)):
+        return load_opportunities()
+
+    @app.post("/opportunities/{idx}/approve")
+    def approve(idx: int, _: str = Depends(check_key)):
+        ops = load_opportunities()
+        if idx < 0 or idx >= len(ops):
+            raise HTTPException(status_code=404, detail="not found")
+        return execute(ops[idx])
 
     @app.websocket("/mcp")
     async def mcp_endpoint(ws: WebSocket):
         await ws.accept()
-        ops = fetch_opportunities()
-        await ws.send_json(ops)
+        await ws.send_json(load_opportunities())
         await ws.close()
-
-
-
-if app:
-    try:
-        import graphene
-        from starlette_graphene3 import GraphQLApp
-
-        class Opportunity(graphene.ObjectType):
-            keyword = graphene.String()
-            score = graphene.Float()
-
-        class Query(graphene.ObjectType):
-            opportunities = graphene.List(Opportunity)
-
-            def resolve_opportunities(root, info):
-                return fetch_opportunities()
-
-        graphql_app = GraphQLApp(schema=graphene.Schema(query=Query))
-        app.add_route("/graphql", graphql_app)
-    except Exception:  # pragma: no cover - optional dependency
-        pass
-
+else:  # pragma: no cover - fastapi unavailable
+    app = None
+    def fetch_opportunities() -> List[dict]:
+        return []

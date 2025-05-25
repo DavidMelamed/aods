@@ -7,6 +7,7 @@ from .roi import (
     compute_scores,
 )
 
+
 __all__ = [
     'detect_anomalies',
     'generate_hypotheses',
@@ -14,4 +15,5 @@ __all__ = [
     'risk_adjusted_return',
     'score_opportunity',
     'compute_scores',
+
 ]

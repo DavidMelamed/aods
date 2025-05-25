@@ -25,3 +25,31 @@ def price_arbitrage_opportunities(records: List[Dict], key_field: str, price_fie
                 "spread": diff,
             })
     return opportunities
+
+
+def currency_triangular_arbitrage(rates: List[Dict]) -> List[Dict]:
+    """Detect simple triangular arbitrage cycles among currency pairs."""
+    pair_rate = {r["pair"]: r["rate"] for r in rates}
+    currencies = set()
+    for pair in pair_rate:
+        a, b = pair.split("/")
+        currencies.update([a, b])
+    cycles = []
+    cur_list = list(currencies)
+    for i in range(len(cur_list)):
+        for j in range(len(cur_list)):
+            for k in range(len(cur_list)):
+                a, b, c = cur_list[i], cur_list[j], cur_list[k]
+                if len({a, b, c}) < 3:
+                    continue
+                r1 = pair_rate.get(f"{a}/{b}")
+                r2 = pair_rate.get(f"{b}/{c}")
+                r3 = pair_rate.get(f"{c}/{a}")
+                if r1 and r2 and r3:
+                    prod = r1 * r2 * r3
+                    if prod > 1.001:
+                        cycles.append({
+                            "cycle": [f"{a}/{b}", f"{b}/{c}", f"{c}/{a}"],
+                            "profit": prod - 1,
+                        })
+    return cycles

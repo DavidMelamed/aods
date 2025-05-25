@@ -20,6 +20,8 @@ MODULES = [
     'aods.analytics.arbitrage',
     'aods.analytics.roi',
     'aods.models.predictive',
+    'aods.models.conversion_model',
+    'aods.models.profit_model',
     'aods.optimizer.portfolio',
     'aods.dashboard.api',
     'aods.dashboard.mcp_server',
@@ -27,6 +29,7 @@ MODULES = [
     'aods.storage.astra',
     'aods.pipeline',
     'aods.visualization.plots',
+
 ]
 
 def test_imports():

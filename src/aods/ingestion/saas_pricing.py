@@ -1,22 +1,38 @@
+"""SaaS pricing connector."""
+
+from __future__ import annotations
+
+import os
+import logging
+from typing import Iterable
+
 from .base import DataConnector
-import random
+
+try:
+    import requests
+except Exception:  # pragma: no cover - optional dependency
+    requests = None
+    logging.warning("requests not available; SaaSPricingConnector disabled")
 
 class SaaSPricingConnector(DataConnector):
-    """Simulated SaaS pricing data."""
+    """Connector for SaaS pricing feeds."""
 
-    def pull(self):
-        plans = ["basic", "pro", "enterprise"]
-        return [
-            {
-                "plan": p,
-                "price": round(random.uniform(5.0, 200.0), 2),
-                "users": random.randint(1, 100),
-            }
-            for p in plans
-        ]
+    def __init__(self, url: str | None = None, token: str | None = None):
+        self.url = url or os.getenv("SAAS_PRICING_API_URL")
+        self.token = token or os.getenv("SAAS_PRICING_API_TOKEN")
 
-    def parse(self, raw):
-        return raw
+    def pull(self) -> Iterable:
+        if requests is None or not self.url:
+            logging.error("SaaS pricing API not configured")
+            return []
+        headers = {"Authorization": f"Bearer {self.token}"} if self.token else {}
+        try:
+            resp = requests.get(self.url, headers=headers, timeout=10)
+            resp.raise_for_status()
+            return resp.json()
+        except Exception as exc:  # pragma: no cover - network errors
+            logging.error("SaaS pricing API fetch failed: %s", exc)
+            return []
 
-    def upsert(self, records):
-        return super().upsert(records)
+    def parse(self, raw: Iterable) -> list[dict]:
+        return [dict(r) for r in raw]

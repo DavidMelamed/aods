@@ -10,7 +10,7 @@ except Exception:  # pragma: no cover - optional
     pywraplp = None
 
 
-    logging.warning("OR-Tools not available; using dynamic-programming fallback")
+    logging.warning("OR-Tools not available; using greedy fallback")
 
 
 def _dp_knapsack(scores: List[float], costs: List[float], budget: float) -> List[int]:
@@ -54,9 +54,18 @@ def optimise_portfolio(scores: List[float], costs: List[float], budget: float) -
                     spent += costs[i]
             return selected
 
+
     solver = pywraplp.Solver.CreateSolver('CBC')
     x = [solver.IntVar(0, 1, f'x{i}') for i in range(n)]
     solver.Add(sum(costs[i]*x[i] for i in range(n)) <= budget)
+    if risk_caps:
+        for i, cap in enumerate(risk_caps):
+            solver.Add(costs[i] * x[i] <= cap * budget)
+    if channels is not None and max_per_channel:
+        uniq = set(channels)
+        for ch in uniq:
+            idx = [i for i, c in enumerate(channels) if c == ch]
+            solver.Add(sum(x[i] for i in idx) <= max_per_channel)
     solver.Maximize(solver.Sum(scores[i]*x[i] for i in range(n)))
     if solver.Solve() == pywraplp.Solver.OPTIMAL:
         return [i for i in range(n) if x[i].solution_value() > 0.5]

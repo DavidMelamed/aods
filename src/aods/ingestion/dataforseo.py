@@ -1,6 +1,10 @@
 """Connectors for DataForSEO APIs."""
 
+from __future__ import annotations
+
+import os
 import logging
+from typing import Iterable
 from .base import DataConnector
 
 try:
@@ -15,23 +19,29 @@ class DataForSEOKeywordsConnector(DataConnector):
 
     endpoint = "https://api.dataforseo.com/v3/keywords_data/google_ads/keywords_for_keywords"  # example
 
-    def __init__(self, api_key: str = "demo", api_secret: str = "demo"):
-        self.api_key = api_key
-        self.api_secret = api_secret
+    def __init__(self, api_key: str | None = None, api_secret: str | None = None):
+        self.api_key = api_key or os.getenv("DATAFORSEO_KEY")
+        self.api_secret = api_secret or os.getenv("DATAFORSEO_SECRET")
 
-    def pull(self):
-        if requests is None:
+    def pull(self) -> Iterable:
+        if requests is None or not (self.api_key and self.api_secret):
+            logging.error("DataForSEO credentials not configured")
             return []
-        # This is a placeholder since network is disabled.
-        # Normally would send a POST request with credentials.
-        logging.info("Simulating DataForSEO keywords fetch")
-        return [
-            {"keyword": "ai tools", "search_volume": 1200, "cpc": 2.5},
-            {"keyword": "cheap hosting", "search_volume": 950, "cpc": 1.2},
-        ]
+        try:
+            resp = requests.post(
+                self.endpoint,
+                auth=(self.api_key, self.api_secret),
+                json={"keywords": ["ai", "cloud"]},
+                timeout=10,
+            )
+            resp.raise_for_status()
+            return resp.json().get("tasks", [])
+        except Exception as exc:  # pragma: no cover - network errors
+            logging.error("DataForSEO keywords fetch failed: %s", exc)
+            return []
 
-    def parse(self, raw):
-        return raw
+    def parse(self, raw: Iterable) -> list[dict]:
+        return [dict(r) for r in raw]
 
 
 class DataForSEOSerpConnector(DataConnector):
@@ -39,18 +49,26 @@ class DataForSEOSerpConnector(DataConnector):
 
     endpoint = "https://api.dataforseo.com/v3/serp/google/organic/live/advanced"  # example
 
-    def __init__(self, api_key: str = "demo", api_secret: str = "demo"):
-        self.api_key = api_key
-        self.api_secret = api_secret
+    def __init__(self, api_key: str | None = None, api_secret: str | None = None):
+        self.api_key = api_key or os.getenv("DATAFORSEO_KEY")
+        self.api_secret = api_secret or os.getenv("DATAFORSEO_SECRET")
 
-    def pull(self):
-        if requests is None:
+    def pull(self) -> Iterable:
+        if requests is None or not (self.api_key and self.api_secret):
+            logging.error("DataForSEO credentials not configured")
             return []
-        logging.info("Simulating DataForSEO SERP fetch")
-        return [
-            {"keyword": "ai tools", "position": 1, "title": "Best AI Tools"},
-            {"keyword": "cheap hosting", "position": 2, "title": "Affordable Hosting"},
-        ]
+        try:
+            resp = requests.post(
+                self.endpoint,
+                auth=(self.api_key, self.api_secret),
+                json={"keywords": ["ai"]},
+                timeout=10,
+            )
+            resp.raise_for_status()
+            return resp.json().get("tasks", [])
+        except Exception as exc:  # pragma: no cover - network errors
+            logging.error("DataForSEO SERP fetch failed: %s", exc)
+            return []
 
-    def parse(self, raw):
-        return raw
+    def parse(self, raw: Iterable) -> list[dict]:
+        return [dict(r) for r in raw]

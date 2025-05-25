@@ -13,4 +13,5 @@ with DAG(
     score = BashOperator(task_id="score", bash_command="python -m aods.pipeline score")
     optimize = BashOperator(task_id="optimize", bash_command="python -m aods.pipeline optimize")
     archive = BashOperator(task_id="archive_raw", bash_command="python scripts/archive_snapshot.py")
+
     ingest >> train >> score >> optimize >> archive

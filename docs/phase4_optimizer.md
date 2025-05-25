@@ -1,3 +1,6 @@
-# Phase 4 - Optimizer Extensions
 
-OR-Tools adds optional diversity and risk constraints.
+# Phase 4 - Portfolio Optimizer
+
+The OR-Tools solver handles opportunity selection with optional diversity and
+risk constraints.
+

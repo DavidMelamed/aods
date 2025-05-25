@@ -1,17 +1,16 @@
-"""Build feature tables using DuckDB joins."""
+
+"""Feature builder using DuckDB."""
 from __future__ import annotations
 
+import duckdb
+import pandas as pd
+import numpy as np
 from pathlib import Path
 
-try:
-    import duckdb
-    import pandas as pd
-except Exception:  # pragma: no cover - optional deps
-    duckdb = None
-    pd = None
+from ..data_io.duck_store import DB_PATH
 
-DB_PATH = Path("data") / "aods.duckdb"
-FEATURE_DIR = Path("features")
+FEATURE_PATH = Path('features') / 'keyword_features.parquet'
+
 
 SQL = """
 CREATE OR REPLACE TABLE keyword_features AS
@@ -24,23 +23,16 @@ FROM keyword_api_raw k
 LEFT JOIN ad_auction_raw a USING(keyword)
 LEFT JOIN social_trends_raw t USING(keyword)
 LEFT JOIN news_sentiment_view nv USING(keyword);
-"""
 
-
-def build_features() -> Path:
-    """Materialise feature table and export to Parquet."""
-    if duckdb is None or pd is None:
-        raise RuntimeError("duckdb not available")
-    FEATURE_DIR.mkdir(parents=True, exist_ok=True)
+def build() -> None:
     con = duckdb.connect(str(DB_PATH))
     con.execute(SQL)
-    df = con.execute("SELECT * FROM keyword_features").fetch_df()
-    df["ratio_engagement_cpc"] = df["engagement_rate"] / df["avg_cpc"].replace(0, 1)
-    df["log_search_volume"] = (df["search_volume"] + 1).apply(lambda x: __import__("math").log(x))
-    out_path = FEATURE_DIR / "keyword_features.parquet"
-    df.to_parquet(out_path)
-    return out_path
+    df = con.execute('SELECT * FROM keyword_features').df()
+    df['ratio_engagement_cpc'] = df['engagement_rate'] / (df['avg_cpc'] + 1e-6)
+    df['log_search_volume'] = np.log(df['search_volume'] + 1)
+    FEATURE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    df.to_parquet(FEATURE_PATH)
 
+if __name__ == '__main__':
+    build()
 
-if __name__ == "__main__":
-    build_features()

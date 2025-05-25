@@ -1,3 +1,5 @@
 # Phase 6 - Monitoring
 
-Prometheus metrics track pipeline run count and latency.
+Prometheus metrics capture pipeline run counts and latency, surfaced in Grafana
+dashboards.
+

@@ -1,3 +1,5 @@
 # Phase 2 - Feature Store
 
-Builds keyword_features using DuckDB SQL joins and persists to Parquet.
+Keyword features are built using DuckDB SQL joins across raw tables. Derived
+columns like engagement ratios are added in Python and stored as Parquet.
+

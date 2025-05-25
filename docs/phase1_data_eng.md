@@ -1,3 +1,7 @@
 # Phase 1 - Data Engineering Backbone
 
-Introduces a DuckDB-based storage layer and optional Great Expectations validation.
+
+DuckDB and Parquet storage replaced JSONL landing files. Connectors now write
+raw records via `duck_store.append()` which also performs Great Expectations
+validation when available.
+

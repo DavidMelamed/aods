@@ -37,6 +37,7 @@ class Pipeline:
         for c in self.connectors:
             raw = c.pull()
             parsed = c.parse(raw)
+            c.upsert(parsed)
             records.extend(parsed)
         logging.info("pulled %d records", len(records))
 

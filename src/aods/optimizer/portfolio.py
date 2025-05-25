@@ -45,7 +45,7 @@ def optimise_portfolio(scores: List[float], costs: List[float], budget: float) -
         try:
             return _dp_knapsack(scores, costs, budget)
         except Exception:
-            # Fallback: greedy selection
+            logging.exception("DP solver failed; using greedy fallback")
             order = sorted(range(n), key=lambda i: scores[i] / (costs[i] or 1), reverse=True)
 
             selected = []

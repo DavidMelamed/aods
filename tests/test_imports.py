@@ -11,7 +11,7 @@ MODULES = [
     'aods.ingestion.crypto_exchange',
     'aods.ingestion.gift_card_market',
     'aods.ingestion.price_api',
-    'aods.ingestion.template_marketplace',
+
     'aods.ingestion.exa_ai',
     'aods.ingestion.tavily',
     'aods.ingestion.apify_connector',
@@ -19,12 +19,7 @@ MODULES = [
     'aods.analytics.anomaly',
     'aods.analytics.hypothesis',
     'aods.analytics.arbitrage',
-    'aods.ingestion.market_news',
-    'aods.ingestion.research_papers',
-    'aods.analytics.anomaly',
-    'aods.analytics.hypothesis',
-    'aods.analytics.arbitrage',
-    'aods.analytics.cleaning',
+
     'aods.analytics.roi',
     'aods.models.predictive',
     'aods.optimizer.portfolio',
@@ -32,9 +27,10 @@ MODULES = [
     'aods.dashboard.mcp_server',
     'aods.orchestrator.dags',
     'aods.storage.astra',
-    'aods.agents.ideation',
     'aods.pipeline',
     'aods.visualization.plots',
+    'aods.utils.cleaning',
+
 ]
 
 def test_imports():

@@ -19,6 +19,7 @@ from .models.predictive import ConversionRateModel, ProfitModel
 from .analytics.roi import compute_scores
 from .agents import IdeaAgent
 from .optimizer.portfolio import optimise_portfolio
+from .utils.cleaning import deduplicate, fill_missing
 
 
 logging.basicConfig(level=logging.INFO)
@@ -49,6 +50,9 @@ class Pipeline:
             records.extend(parsed)
         records = deduplicate_records(records)
         logging.info("pulled %d records", len(records))
+
+        records = deduplicate(records)
+        records = fill_missing(records, {"cpc": 1.0, "search_volume": 1000})
 
         hyps = generate_hypotheses(records)
         logging.info("generated %d hypotheses", len(hyps))

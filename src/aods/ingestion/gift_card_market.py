@@ -1,16 +1,34 @@
-"""Connector for gift card market prices (simulated)."""
+"""Connector for gift card market prices."""
 
-import random
+from __future__ import annotations
+
+import os
+import logging
+from typing import Iterable
+
 from .base import DataConnector
 
-class GiftCardMarketConnector(DataConnector):
-    def pull(self):
-        # Simulate gift card buy/sell rates
-        return [
-            {"brand": "StoreA", "buy_rate": 0.92, "sell_rate": 0.95},
-            {"brand": "StoreB", "buy_rate": 0.88, "sell_rate": 0.9},
-            {"brand": "StoreC", "buy_rate": 0.8, "sell_rate": 0.83},
-        ]
+try:
+    import requests
+except Exception:  # pragma: no cover - optional dependency
+    requests = None
+    logging.warning("requests not available; GiftCardMarketConnector disabled")
 
-    def parse(self, raw):
-        return raw
+class GiftCardMarketConnector(DataConnector):
+    def __init__(self, url: str | None = None):
+        self.url = url or os.getenv("GIFT_CARD_API_URL")
+
+    def pull(self) -> Iterable:
+        if requests is None or not self.url:
+            logging.error("Gift card market API not configured")
+            return []
+        try:
+            resp = requests.get(self.url, timeout=10)
+            resp.raise_for_status()
+            return resp.json()
+        except Exception as exc:  # pragma: no cover - network errors
+            logging.error("Gift card API fetch failed: %s", exc)
+            return []
+
+    def parse(self, raw: Iterable) -> list[dict]:
+        return [dict(r) for r in raw]

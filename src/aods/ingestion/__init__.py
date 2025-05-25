@@ -30,5 +30,6 @@ __all__ = [
     'PriceAPIConnector',
     'DataForSEOKeywordsConnector',
     'DataForSEOSerpConnector',
+
     'DataConnector',
 ]

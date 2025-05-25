@@ -4,7 +4,7 @@ This repository provides a minimal reference implementation matching the high-le
 
 ## Components
 
-- **Ingestion**: Example `KeywordAPIConnector` that simulates pulling keyword data.
+- **Ingestion**: Pluggable connectors for keywords, ad auctions, product prices and social trends.
 - **Analytics**: Simple anomaly detection and hypothesis generation utilities.
 - **Models**: LightGBM-based conversion rate model (falls back to dummy if LightGBM is missing).
 - **Portfolio Optimizer**: MILP optimisation using OR-Tools with a greedy fallback.
@@ -18,6 +18,19 @@ Install dependencies (optional extras used if available):
 ```bash
 pip install -r requirements.txt
 ```
+
+### Environment variables
+
+Set any API tokens required by optional connectors before running the
+pipeline. For example, supply your OpenAI key so the ``IdeaAgent`` can
+call the API:
+
+```bash
+export OPENAI_API_KEY="sk-..."
+```
+
+Other connectors use variables such as ``APIFY_TOKEN`` or ``SCRAPEOWL_KEY``.
+The pipeline will degrade gracefully if these are unset.
 
 Run tests with `pytest`:
 
@@ -34,6 +47,28 @@ Start the API (requires `uvicorn`):
 ```bash
 uvicorn aods.dashboard.api:app --reload
 ```
+
+## Configuration
+
+Set the following environment variables to enable the live connectors:
+
+- `KEYWORD_API_URL` and `KEYWORD_API_TOKEN`
+- `AD_AUCTION_API_URL` and `AD_AUCTION_API_TOKEN`
+- `PRODUCT_PRICE_API_URL` and `PRODUCT_PRICE_API_TOKEN`
+- `SOCIAL_TRENDS_API_URL` and `SOCIAL_TRENDS_API_TOKEN`
+- `SAAS_PRICING_API_URL` and `SAAS_PRICING_API_TOKEN`
+- `PRICE_API_URL` and `PRICE_API_TOKEN`
+- `CRYPTO_EXCHANGE_API_URL`
+- `GIFT_CARD_API_URL`
+- `APIFY_TOKEN` and `APIFY_ACTOR`
+- `SCRAPEOWL_API_KEY`
+- `EXA_API_KEY`
+- `TAVILY_API_KEY`
+- `DATAFORSEO_KEY` and `DATAFORSEO_SECRET`
+
+If any variable is unset, the corresponding connector will simply return no
+records. Pulled data is written as JSON lines under `landing_zone/` for
+persistence.
 
 
 ## Development
@@ -63,6 +98,22 @@ The ingestion layer now includes optional connectors for external data services:
 - `ScrapeOwlConnector` for simple web scraping
 
 These connectors are loaded only if their respective libraries are installed.
+
+## Configuration
+
+Several connectors require API keys. Set these via environment variables before
+running the pipeline:
+
+```bash
+export EXA_API_KEY=<your-exa-key>
+export TAVILY_API_KEY=<your-tavily-key>
+export APIFY_TOKEN=<your-apify-token>
+export ASTRA_TOKEN=<your-astra-token>
+export ASTRA_ENDPOINT=<your-astra-endpoint>
+```
+
+The `DataForSEO*` connectors accept `API_KEY` and `API_SECRET` arguments or use
+`DATAFORSEO_KEY` and `DATAFORSEO_SECRET` environment variables.
 
 ## Vector Storage
 

@@ -41,11 +41,13 @@ def optimise_portfolio(scores: List[float], costs: List[float], budget: float) -
     """Select opportunities under budget."""
     n = len(scores)
     if pywraplp is None:
+
         try:
             return _dp_knapsack(scores, costs, budget)
         except Exception:
             logging.exception("DP solver failed; using greedy fallback")
             order = sorted(range(n), key=lambda i: scores[i] / (costs[i] or 1), reverse=True)
+
             selected = []
             spent = 0.0
             for i in order:

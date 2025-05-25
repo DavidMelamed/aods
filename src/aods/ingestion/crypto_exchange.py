@@ -1,17 +1,34 @@
-"""Connector for crypto exchange prices (simulated)."""
+"""Connector for crypto exchange prices."""
 
-import random
+from __future__ import annotations
+
+import os
+import logging
+from typing import Iterable
+
 from .base import DataConnector
 
-class CryptoExchangeConnector(DataConnector):
-    def pull(self):
-        # Simulate pulling prices for BTC and ETH from two exchanges
-        return [
-            {"asset": "BTC", "exchange": "A", "price": random.uniform(28000, 30000)},
-            {"asset": "BTC", "exchange": "B", "price": random.uniform(27900, 30100)},
-            {"asset": "ETH", "exchange": "A", "price": random.uniform(1800, 1900)},
-            {"asset": "ETH", "exchange": "B", "price": random.uniform(1790, 1910)},
-        ]
+try:
+    import requests
+except Exception:  # pragma: no cover - optional dependency
+    requests = None
+    logging.warning("requests not available; CryptoExchangeConnector disabled")
 
-    def parse(self, raw):
-        return raw
+class CryptoExchangeConnector(DataConnector):
+    def __init__(self, url: str | None = None):
+        self.url = url or os.getenv("CRYPTO_EXCHANGE_API_URL")
+
+    def pull(self) -> Iterable:
+        if requests is None or not self.url:
+            logging.error("Crypto exchange API not configured")
+            return []
+        try:
+            resp = requests.get(self.url, timeout=10)
+            resp.raise_for_status()
+            return resp.json()
+        except Exception as exc:  # pragma: no cover - network errors
+            logging.error("Crypto exchange API fetch failed: %s", exc)
+            return []
+
+    def parse(self, raw: Iterable) -> list[dict]:
+        return [dict(r) for r in raw]

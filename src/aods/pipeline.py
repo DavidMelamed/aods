@@ -15,6 +15,7 @@ from .analytics.anomaly import detect_anomalies
 from .models.predictive import ConversionRateModel
 from .analytics.roi import compute_scores
 from .optimizer.portfolio import optimise_portfolio
+from .utils.cleaning import deduplicate, fill_missing
 
 
 logging.basicConfig(level=logging.INFO)
@@ -39,6 +40,9 @@ class Pipeline:
             parsed = c.parse(raw)
             records.extend(parsed)
         logging.info("pulled %d records", len(records))
+
+        records = deduplicate(records)
+        records = fill_missing(records, {"cpc": 1.0, "search_volume": 1000})
 
         hyps = generate_hypotheses(records)
         logging.info("generated %d hypotheses", len(hyps))

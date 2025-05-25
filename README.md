@@ -94,8 +94,11 @@ npm run dev
 ```
 
 The app will fetch opportunities from the FastAPI backend at `http://localhost:8000/opportunities`.
+Start the backend API separately:
 
-Run the demo pipeline:
+```bash
+uvicorn aods.dashboard.api:app --reload
+```
 
 ## Extended Features
 

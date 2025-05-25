@@ -41,16 +41,18 @@ def optimise_portfolio(scores: List[float], costs: List[float], budget: float) -
     """Select opportunities under budget."""
     n = len(scores)
     if pywraplp is None:
-
-        # Fallback: greedy selection
-        order = sorted(range(n), key=lambda i: scores[i]/(costs[i] or 1), reverse=True)
-        selected = []
-        spent = 0.0
-        for i in order:
-            if spent + costs[i] <= budget:
-                selected.append(i)
-                spent += costs[i]
-        return selected
+        try:
+            return _dp_knapsack(scores, costs, budget)
+        except Exception:
+            logging.exception("DP solver failed; using greedy fallback")
+            order = sorted(range(n), key=lambda i: scores[i] / (costs[i] or 1), reverse=True)
+            selected = []
+            spent = 0.0
+            for i in order:
+                if spent + costs[i] <= budget:
+                    selected.append(i)
+                    spent += costs[i]
+            return selected
 
     solver = pywraplp.Solver.CreateSolver('CBC')
     x = [solver.IntVar(0, 1, f'x{i}') for i in range(n)]

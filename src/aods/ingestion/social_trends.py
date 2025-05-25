@@ -1,25 +1,39 @@
+"""Social media trend metrics connector."""
+
+from __future__ import annotations
+
+import os
+import logging
+from typing import Iterable
+
 from .base import DataConnector
-import random
+
+try:
+    import requests
+except Exception:  # pragma: no cover - optional dependency
+    requests = None
+    logging.warning("requests not available; SocialTrendConnector disabled")
 
 class SocialTrendConnector(DataConnector):
+    """Connector for social media trend data."""
 
-    """Simulated social media trend metrics."""
+    def __init__(self, url: str | None = None, token: str | None = None):
+        self.url = url or os.getenv("SOCIAL_TRENDS_API_URL")
+        self.token = token or os.getenv("SOCIAL_TRENDS_API_TOKEN")
 
-    def pull(self):
-        topics = ["AI", "ML", "Cloud", "Data"]
-        return [
-            {
-                "platform": random.choice(["tw", "yt", "tt"]),
-                "topic": t,
-                "views": random.randint(1000, 100000),
-                "engagement_rate": round(random.uniform(0.01, 0.2), 3),
-            }
-            for t in topics
-        ]
+    def pull(self) -> Iterable:
+        if requests is None or not self.url:
+            logging.error("Social trends API not configured")
+            return []
+        headers = {"Authorization": f"Bearer {self.token}"} if self.token else {}
+        try:
+            resp = requests.get(self.url, headers=headers, timeout=10)
+            resp.raise_for_status()
+            return resp.json()
+        except Exception as exc:  # pragma: no cover - network errors
+            logging.error("Social trends API fetch failed: %s", exc)
+            return []
 
-    def parse(self, raw):
-        return raw
-
-    def upsert(self, records):
-        return super().upsert(records)
+    def parse(self, raw: Iterable) -> list[dict]:
+        return [dict(r) for r in raw]
 

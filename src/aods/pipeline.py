@@ -45,6 +45,7 @@ class Pipeline:
         for c in self.connectors:
             raw = c.pull()
             parsed = c.parse(raw)
+            c.upsert(parsed)
             records.extend(parsed)
         records = deduplicate_records(records)
         logging.info("pulled %d records", len(records))

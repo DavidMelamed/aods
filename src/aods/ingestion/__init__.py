@@ -15,7 +15,6 @@ from .dataforseo import DataForSEOKeywordsConnector, DataForSEOSerpConnector
 from .template_marketplace import TemplateMarketplaceConnector
 from .market_news import MarketNewsConnector
 from .research_papers import ResearchPaperConnector
-
 from .base import DataConnector
 
 __all__ = [

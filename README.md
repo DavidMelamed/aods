@@ -4,7 +4,7 @@ This repository provides a minimal reference implementation matching the high-le
 
 ## Components
 
-- **Ingestion**: Example `KeywordAPIConnector` that simulates pulling keyword data.
+- **Ingestion**: Pluggable connectors for keywords, ad auctions, product prices and social trends.
 - **Analytics**: Simple anomaly detection and hypothesis generation utilities.
 - **Models**: LightGBM-based conversion rate model (falls back to dummy if LightGBM is missing).
 - **Portfolio Optimizer**: MILP optimisation using OR-Tools with a greedy fallback.
@@ -47,6 +47,28 @@ Start the API (requires `uvicorn`):
 ```bash
 uvicorn aods.dashboard.api:app --reload
 ```
+
+## Configuration
+
+Set the following environment variables to enable the live connectors:
+
+- `KEYWORD_API_URL` and `KEYWORD_API_TOKEN`
+- `AD_AUCTION_API_URL` and `AD_AUCTION_API_TOKEN`
+- `PRODUCT_PRICE_API_URL` and `PRODUCT_PRICE_API_TOKEN`
+- `SOCIAL_TRENDS_API_URL` and `SOCIAL_TRENDS_API_TOKEN`
+- `SAAS_PRICING_API_URL` and `SAAS_PRICING_API_TOKEN`
+- `PRICE_API_URL` and `PRICE_API_TOKEN`
+- `CRYPTO_EXCHANGE_API_URL`
+- `GIFT_CARD_API_URL`
+- `APIFY_TOKEN` and `APIFY_ACTOR`
+- `SCRAPEOWL_API_KEY`
+- `EXA_API_KEY`
+- `TAVILY_API_KEY`
+- `DATAFORSEO_KEY` and `DATAFORSEO_SECRET`
+
+If any variable is unset, the corresponding connector will simply return no
+records. Pulled data is written as JSON lines under `landing_zone/` for
+persistence.
 
 
 ## Development

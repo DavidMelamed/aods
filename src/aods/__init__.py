@@ -3,7 +3,6 @@
 """Autonomous Opportunity Discovery System."""
 
 from .pipeline import Pipeline
-
 from .agents import IdeaAgent
 
 
@@ -14,5 +13,6 @@ def run() -> list[dict]:
 
 
 __all__ = ["Pipeline", "run", "IdeaAgent"]
+
 
 

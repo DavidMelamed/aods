@@ -19,6 +19,19 @@ Install dependencies (optional extras used if available):
 pip install -r requirements.txt
 ```
 
+### Environment variables
+
+Set any API tokens required by optional connectors before running the
+pipeline. For example, supply your OpenAI key so the ``IdeaAgent`` can
+call the API:
+
+```bash
+export OPENAI_API_KEY="sk-..."
+```
+
+Other connectors use variables such as ``APIFY_TOKEN`` or ``SCRAPEOWL_KEY``.
+The pipeline will degrade gracefully if these are unset.
+
 Run tests with `pytest`:
 
 ## Usage
@@ -85,6 +98,22 @@ The ingestion layer now includes optional connectors for external data services:
 - `ScrapeOwlConnector` for simple web scraping
 
 These connectors are loaded only if their respective libraries are installed.
+
+## Configuration
+
+Several connectors require API keys. Set these via environment variables before
+running the pipeline:
+
+```bash
+export EXA_API_KEY=<your-exa-key>
+export TAVILY_API_KEY=<your-tavily-key>
+export APIFY_TOKEN=<your-apify-token>
+export ASTRA_TOKEN=<your-astra-token>
+export ASTRA_ENDPOINT=<your-astra-endpoint>
+```
+
+The `DataForSEO*` connectors accept `API_KEY` and `API_SECRET` arguments or use
+`DATAFORSEO_KEY` and `DATAFORSEO_SECRET` environment variables.
 
 ## Vector Storage
 

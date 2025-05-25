@@ -6,6 +6,7 @@ services:
       dockerfile: Dockerfile.backend
     ports:
       - "8000:8000"
+
   mlflow:
     build:
       context: .
@@ -18,3 +19,4 @@ services:
     image: prom/prometheus
   grafana:
     image: grafana/grafana
+

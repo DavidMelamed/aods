@@ -52,5 +52,6 @@ def append(table: str, df: 'pd.DataFrame') -> None:
     if not _validate(table, df):
         logging.critical("validation failed for %s", table)
         return
+
     DB.execute(f"CREATE TABLE IF NOT EXISTS {table} AS SELECT * FROM df")
     DB.append(table, df)

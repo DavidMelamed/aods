@@ -11,6 +11,7 @@ catboost==1.2.3
 prometheus-client==0.20.0
 shap==0.45.0
 great_expectations==0.18.9
+
 exa-py
 tavily
 apify-client
@@ -20,3 +21,5 @@ websockets
 
 duckdb==0.9.2
 pyarrow==15.0.0
+
+

@@ -6,6 +6,7 @@ from typing import Iterable, List
 try:
     import xgboost as xgb
 except Exception:  # pragma: no cover - optional
+
     xgb = None
 
 
@@ -22,3 +23,4 @@ class ConversionModel:
         if self.model is not None:
             return self.model.predict_proba(list(X))[:, 1].tolist()
         return [0.0 for _ in X]
+

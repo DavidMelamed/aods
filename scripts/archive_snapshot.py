@@ -1,3 +1,4 @@
+
 import datetime
 import pathlib
 import shutil
@@ -13,4 +14,5 @@ def main() -> None:
         shutil.copy2(DB_PATH, dest_dir / DB_PATH.name)
 
 if __name__ == '__main__':
+
     main()

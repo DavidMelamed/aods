@@ -1,6 +1,7 @@
 """CatBoost regressor wrapper."""
 from __future__ import annotations
 
+
 from typing import Iterable, List
 
 try:
@@ -9,8 +10,10 @@ except Exception:  # pragma: no cover - optional
     CatBoostRegressor = None
 
 
+
 class ProfitModel:
     def __init__(self):
+
         self.model = CatBoostRegressor(verbose=False) if CatBoostRegressor else None
         self.mean_profit = 0.0
 

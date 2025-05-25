@@ -28,6 +28,7 @@ from .utils.cleaning import deduplicate, fill_missing
 
 logging.basicConfig(level=logging.INFO)
 
+
 if start_http_server:
     start_http_server(9102)
     RUN_COUNTER = Counter('aods_runs', 'Pipeline runs', ['status'])
@@ -54,6 +55,7 @@ class Pipeline:
         self.idea_agent = idea_agent
 
     def run(self) -> List[dict]:
+
         with LATENCY.time():
             try:
                 records: List[dict] = []
@@ -106,6 +108,7 @@ class Pipeline:
                 RUN_COUNTER.labels('failure').inc()
                 logging.exception("pipeline failed")
                 return []
+
 
 
 def main():

@@ -1,3 +1,4 @@
+
 from aods.models import ConversionModel, ProfitModel
 
 
@@ -13,3 +14,4 @@ def test_profit_predict():
     model.fit([[1, 1]], [1.0])
     preds = model.predict([[1, 1]])
     assert isinstance(preds[0], float)
+

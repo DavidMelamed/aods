@@ -1,3 +1,4 @@
+
 import mlflow
 import pandas as pd
 from aods.features.build_features import FEATURE_PATH
@@ -22,6 +23,7 @@ def main() -> None:
         clf.fit(X, y)
         mlflow.xgboost.log_model(clf.model, "conversion_model")
         mlflow.log_metric("num_rows", len(X))
+
 
 
 if __name__ == "__main__":

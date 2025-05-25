@@ -1,3 +1,4 @@
+
 """Feature builder using DuckDB."""
 from __future__ import annotations
 
@@ -10,6 +11,7 @@ from ..data_io.duck_store import DB_PATH
 
 FEATURE_PATH = Path('features') / 'keyword_features.parquet'
 
+
 SQL = """
 CREATE OR REPLACE TABLE keyword_features AS
 SELECT k.keyword,
@@ -21,7 +23,6 @@ FROM keyword_api_raw k
 LEFT JOIN ad_auction_raw a USING(keyword)
 LEFT JOIN social_trends_raw t USING(keyword)
 LEFT JOIN news_sentiment_view nv USING(keyword);
-"""
 
 def build() -> None:
     con = duckdb.connect(str(DB_PATH))
@@ -34,3 +35,4 @@ def build() -> None:
 
 if __name__ == '__main__':
     build()
+

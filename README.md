@@ -19,6 +19,19 @@ Install dependencies (optional extras used if available):
 pip install -r requirements.txt
 ```
 
+### Environment variables
+
+Set any API tokens required by optional connectors before running the
+pipeline. For example, supply your OpenAI key so the ``IdeaAgent`` can
+call the API:
+
+```bash
+export OPENAI_API_KEY="sk-..."
+```
+
+Other connectors use variables such as ``APIFY_TOKEN`` or ``SCRAPEOWL_KEY``.
+The pipeline will degrade gracefully if these are unset.
+
 Run tests with `pytest`:
 
 ## Usage

@@ -11,6 +11,8 @@ from .saas_pricing import SaaSPricingConnector
 from .crypto_exchange import CryptoExchangeConnector
 from .gift_card_market import GiftCardMarketConnector
 from .price_api import PriceAPIConnector
+from .market_news import MarketNewsConnector
+from .research_papers import ResearchPaperConnector
 from .dataforseo import DataForSEOKeywordsConnector, DataForSEOSerpConnector
 from .base import DataConnector
 
@@ -27,6 +29,8 @@ __all__ = [
     'ScrapeOwlConnector',
     'CryptoExchangeConnector',
     'GiftCardMarketConnector',
+    'MarketNewsConnector',
+    'ResearchPaperConnector',
     'PriceAPIConnector',
     'DataForSEOKeywordsConnector',
     'DataForSEOSerpConnector',

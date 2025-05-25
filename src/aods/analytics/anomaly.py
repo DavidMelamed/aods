@@ -33,4 +33,6 @@ def detect_anomalies(data):
 
     mean = statistics.mean(data) if data else 0.0
     stdev = statistics.stdev(data) if len(data) > 1 else 1.0
+    if stdev == 0:
+        stdev = 1.0
     return [abs(x - mean) / stdev for x in data]

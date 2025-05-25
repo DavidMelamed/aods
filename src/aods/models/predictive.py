@@ -14,6 +14,12 @@ except Exception:  # pragma: no cover - optional
 
     logging.warning("lightgbm not available; using simple logistic regression")
 
+try:
+    from sklearn.ensemble import RandomForestRegressor
+except Exception:  # pragma: no cover - optional
+    RandomForestRegressor = None
+    logging.warning("sklearn not available; ProfitModel will use mean")
+
 
 class ConversionRateModel:
     """Train/predict conversion rates using LightGBM or fallback logistic regression."""
@@ -61,5 +67,28 @@ class ConversionRateModel:
         if self.model is None:
             return self._predict_logistic(X_list)
         return self.model.predict(X_list).tolist()
+
+
+class ProfitModel:
+    """Predict expected profit using RandomForest or mean value."""
+
+    def __init__(self):
+        self.model = RandomForestRegressor() if RandomForestRegressor else None
+        self.mean_profit = 0.0
+
+    def fit(self, X: Iterable, y: Iterable):
+        X_list = [list(x) for x in X]
+        y_list = list(y)
+        if self.model:
+            self.model.fit(X_list, y_list)
+        if y_list:
+            self.mean_profit = sum(y_list) / len(y_list)
+        return self
+
+    def predict(self, X: Iterable) -> List[float]:
+        X_list = [list(x) for x in X]
+        if self.model:
+            return self.model.predict(X_list).tolist()
+        return [self.mean_profit for _ in X_list]
 
 

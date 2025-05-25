@@ -13,6 +13,9 @@ from .gift_card_market import GiftCardMarketConnector
 from .price_api import PriceAPIConnector
 from .dataforseo import DataForSEOKeywordsConnector, DataForSEOSerpConnector
 from .template_marketplace import TemplateMarketplaceConnector
+from .market_news import MarketNewsConnector
+from .research_papers import ResearchPaperConnector
+
 from .base import DataConnector
 
 __all__ = [
@@ -32,6 +35,8 @@ __all__ = [
     'TemplateMarketplaceConnector',
     'DataForSEOKeywordsConnector',
     'DataForSEOSerpConnector',
+    'MarketNewsConnector',
+    'ResearchPaperConnector',
     'DataConnector',
 ]
 

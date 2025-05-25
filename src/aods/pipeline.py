@@ -1,7 +1,7 @@
 
 """End-to-end pipeline orchestrating ingestion, modelling and optimisation."""
 
-from typing import List
+from typing import List, Optional
 import logging
 from .ingestion import (
     KeywordAPIConnector,
@@ -17,6 +17,7 @@ from .analytics.anomaly import detect_anomalies
 from .analytics.cleaning import deduplicate_records
 from .models.predictive import ConversionRateModel, ProfitModel
 from .analytics.roi import compute_scores
+from .agents import IdeaAgent
 from .optimizer.portfolio import optimise_portfolio
 
 
@@ -24,7 +25,7 @@ logging.basicConfig(level=logging.INFO)
 
 
 class Pipeline:
-    def __init__(self, budget: float = 100.0):
+    def __init__(self, budget: float = 100.0, idea_agent: Optional[IdeaAgent] = None):
         self.connectors = [
             KeywordAPIConnector(),
             AdAuctionConnector(),
@@ -37,6 +38,7 @@ class Pipeline:
         self.model = ConversionRateModel()
         self.profit_model = ProfitModel()
         self.budget = budget
+        self.idea_agent = idea_agent
 
     def run(self) -> List[dict]:
         records: List[dict] = []
@@ -49,6 +51,15 @@ class Pipeline:
 
         hyps = generate_hypotheses(records)
         logging.info("generated %d hypotheses", len(hyps))
+
+        if self.idea_agent is not None:
+            try:
+                extra = self.idea_agent.generate_ideas(
+                    "Suggest new digital arbitrage opportunities as JSON list"
+                )
+                logging.info("LLM ideas: %s", extra)
+            except Exception as exc:  # pragma: no cover - runtime safety
+                logging.warning("idea generation failed: %s", exc)
 
         metrics = [r.get("cpc", 1.0) for r in records]
         detect_anomalies(metrics)  # side effect only

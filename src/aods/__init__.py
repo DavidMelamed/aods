@@ -4,6 +4,8 @@
 
 from .pipeline import Pipeline
 
+from .agents import IdeaAgent
+
 
 def run() -> list[dict]:
     """Execute the default pipeline and return opportunities."""
@@ -11,5 +13,6 @@ def run() -> list[dict]:
     return pipe.run()
 
 
-__all__ = ["Pipeline", "run"]
+__all__ = ["Pipeline", "run", "IdeaAgent"]
+
 

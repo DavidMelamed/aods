@@ -7,6 +7,8 @@ import logging
 from pathlib import Path
 from typing import Iterable, List
 
+from ..data_io import duck_store
+
 
 class DataConnector:
     """Base class for ingestion connectors."""
@@ -27,12 +29,18 @@ class DataConnector:
         return self.landing_dir / f"{self.__class__.__name__}.jsonl"
 
     def upsert(self, records: List[dict]) -> List[dict]:
-        """Persist records to the landing zone."""
-        path = self.landing_file()
+        """Persist records to DuckDB if available."""
+        table = f"{self.__class__.__name__.lower()}_raw"
         try:
-            with path.open("a", encoding="utf-8") as fh:
-                for rec in records:
-                    fh.write(json.dumps(rec) + "\n")
-        except Exception as exc:  # pragma: no cover - file system issues
-            logging.error("Failed to write to %s: %s", path, exc)
+            import pandas as pd  # local optional dep
+            duck_store.append(table, pd.DataFrame(records))
+        except Exception as exc:  # pragma: no cover - optional deps
+            logging.error("Failed to append to %s: %s", table, exc)
+            path = self.landing_file()
+            try:
+                with path.open("a", encoding="utf-8") as fh:
+                    for rec in records:
+                        fh.write(json.dumps(rec) + "\n")
+            except Exception as write_exc:  # pragma: no cover - file issues
+                logging.error("Fallback write failed: %s", write_exc)
         return records

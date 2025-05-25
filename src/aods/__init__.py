@@ -5,7 +5,6 @@
 from .pipeline import Pipeline
 
 
-
 def run() -> list[dict]:
     """Execute the default pipeline and return opportunities."""
     pipe = Pipeline()

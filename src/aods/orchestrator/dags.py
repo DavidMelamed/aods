@@ -12,6 +12,7 @@ from aods.pipeline import Pipeline
 
 
 def run_pipeline():
+    """Entry point for the Airflow task."""
     pipe = Pipeline()
     pipe.run()
 

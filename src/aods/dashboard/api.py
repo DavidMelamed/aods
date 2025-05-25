@@ -45,7 +45,14 @@ if FastAPI:
         ops = load_opportunities()
         if idx < 0 or idx >= len(ops):
             raise HTTPException(status_code=404, detail="not found")
-        return execute(ops[idx])
+        opp = ops[idx]
+        if opp.get("status") != "pending":
+            raise HTTPException(status_code=400, detail="already processed")
+        result = execute(opp)
+        opp.update(result)
+        with OPPS_PATH.open("w", encoding="utf-8") as fh:
+            json.dump(ops, fh)
+        return opp
 
     @app.websocket("/mcp")
     async def mcp_endpoint(ws: WebSocket):

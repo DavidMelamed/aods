@@ -53,7 +53,7 @@ OPPS_PATH = Path("data/opportunities.json")
 
 
 class Pipeline:
-    def __init__(self, budget: float = 100.0, idea_agent: Optional[IdeaAgent] = None, model_dir: Path | None = None):
+    def __init__(self, budget: float = 100.0, idea_agent: Optional[IdeaAgent] = None, model_dir: Path | None = None, auto_threshold: float = 1.0):
         self.connectors = [
             KeywordAPIConnector(),
             AdAuctionConnector(),
@@ -69,6 +69,7 @@ class Pipeline:
         self.rank_model = self._load_or_default(RankModel, "rank_model.pkl")
         self.budget = budget
         self.idea_agent = idea_agent
+        self.auto_threshold = auto_threshold
 
     def _load_or_default(self, cls, filename):
         path = self.model_dir / filename
@@ -79,21 +80,63 @@ class Pipeline:
                 logging.error("failed to load %s: %s", path, exc)
         return cls()
 
-    def run(self) -> List[dict]:
+    def ingest(self) -> List[dict]:
+        """Fetch raw records from all connectors."""
+        records: List[dict] = []
+        for c in self.connectors:
+            try:
+                raw = c.pull()
+                parsed = c.parse(raw)
+                c.upsert(parsed)
+                records.extend(parsed)
+            except Exception as exc:  # pragma: no cover - connector failures
+                logging.error("connector %s failed: %s", c.__class__.__name__, exc)
+        return deduplicate_records(records)
 
+    def preprocess(self, records: List[dict]) -> List[dict]:
+        records = deduplicate(records)
+        return fill_missing(records, {"cpc": 1.0, "search_volume": 1000})
+
+    def score_records(self, records: List[dict]) -> list[float]:
+        if pd is not None:
+            try:
+                feature_df = build_feature_table()
+            except Exception as exc:  # pragma: no cover - join issues
+                logging.error("feature build failed: %s", exc)
+                feature_df = pd.DataFrame()
+            if not feature_df.empty:
+                X = feature_df[["search_volume", "avg_cpc"]].values.tolist()
+                profit_features = (
+                    feature_df[["price", "avg_cpc"]].fillna(1.0).values.tolist()
+                    if "price" in feature_df.columns
+                    else [[1.0, c] for c in feature_df["avg_cpc"].tolist()]
+                )
+            else:
+                X = [[r.get("search_volume", 1000), r.get("cpc", 1.0)] for r in records]
+                profit_features = [[r.get("price", 1.0), r.get("cpc", 1.0)] for r in records]
+        else:
+            X = [[r.get("search_volume", 1000), r.get("cpc", 1.0)] for r in records]
+            profit_features = [[r.get("price", 1.0), r.get("cpc", 1.0)] for r in records]
+
+        preds = self.model.predict(X)
+        profit_preds = self.profit_model.predict(profit_features)
+
+        revenues = [p * 10 + prof for p, prof in zip(preds, profit_preds)]
+        costs = [r.get("cpc", 1.0) for r in records]
+        std_devs = [0.1 for _ in preds]
+        scores = compute_scores(preds, revenues, costs, std_devs)
+        for rec, sc in zip(records, scores):
+            rec["score"] = sc
+            rec["auto_exec"] = sc >= self.auto_threshold
+        return scores
+
+    def run(self) -> List[dict]:
         with LATENCY.time():
             try:
-                records: List[dict] = []
-                for c in self.connectors:
-                    raw = c.pull()
-                    parsed = c.parse(raw)
-                    c.upsert(parsed)
-                    records.extend(parsed)
-                records = deduplicate_records(records)
+                records = self.ingest()
                 logging.info("pulled %d records", len(records))
 
-                records = deduplicate(records)
-                records = fill_missing(records, {"cpc": 1.0, "search_volume": 1000})
+                records = self.preprocess(records)
 
                 hyps = generate_hypotheses(records)
                 logging.info("generated %d hypotheses", len(hyps))
@@ -110,46 +153,33 @@ class Pipeline:
                 metrics = [r.get("cpc", 1.0) for r in records]
                 detect_anomalies(metrics)  # side effect only
 
-                try:
-                    feature_df = build_feature_table()
-                except Exception as exc:  # pragma: no cover - join issues
-                    logging.error("feature build failed: %s", exc)
-                    feature_df = pd.DataFrame() if pd is not None else []
+                scores = self.score_records(records)
 
-                if pd is not None and not feature_df.empty:
-                    X = feature_df[["search_volume", "avg_cpc"]].values.tolist()
-                else:
-                    X = [[r.get("search_volume", 1000), r.get("cpc", 1.0)] for r in records]
-                preds = self.model.predict(X)
-                if pd is not None and not feature_df.empty:
-                    profit_features = feature_df[["price", "avg_cpc"]].fillna(1.0).values.tolist() if "price" in feature_df.columns else [[1.0, c] for c in feature_df["avg_cpc"].tolist()]
-                else:
-                    profit_features = [[r.get("price", 1.0), r.get("cpc", 1.0)] for r in records]
-                profit_preds = self.profit_model.predict(profit_features)
-
-                revenues = [p * 10 + prof for p, prof in zip(preds, profit_preds)]
                 costs = [r.get("cpc", 1.0) for r in records]
-                std_devs = [0.1 for _ in preds]
-                scores = compute_scores(preds, revenues, costs, std_devs)
-
                 selected_idx = optimise_portfolio(scores, costs, self.budget)
                 opps = [records[i] for i in selected_idx]
-                for i, op in zip(selected_idx, opps):
-                    op["score"] = scores[i]
+
+                for o in opps:
+                    o["status"] = "pending"
+                try:
+                    from .execution.router import execute
+                    for o in opps:
+                        if o.get("auto_exec"):
+                            try:
+                                res = execute(o)
+                                o.update(res)
+                            except Exception as exc:  # pragma: no cover - exec err
+                                logging.error("execution failed: %s", exc)
+                                o["status"] = "error"
+                except Exception as exc:  # pragma: no cover - router issues
+                    logging.error("execution setup failed: %s", exc)
 
                 OPPS_PATH.parent.mkdir(parents=True, exist_ok=True)
                 with OPPS_PATH.open("w", encoding="utf-8") as fh:
                     json.dump(opps, fh)
 
-                executed = []
-                try:
-                    from .execution.router import execute
-                    executed = [execute(o) for o in opps]
-                except Exception as exc:  # pragma: no cover - execution errors
-                    logging.error("execution failed: %s", exc)
-
                 RUN_COUNTER.labels('success').inc()
-                return executed or opps
+                return opps
             except Exception:
                 RUN_COUNTER.labels('failure').inc()
                 logging.exception("pipeline failed")

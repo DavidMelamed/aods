@@ -1,6 +1,7 @@
 """Astra DB vector embedding storage wrapper."""
 
 import logging
+import os
 
 try:
     from astrapy.db import AstraDB
@@ -13,6 +14,8 @@ class AstraVectorStore:
     """Store and query embeddings in Astra DB."""
 
     def __init__(self, token: str | None = None, api_endpoint: str | None = None, collection="embeddings"):
+        token = token or os.getenv("ASTRA_TOKEN")
+        api_endpoint = api_endpoint or os.getenv("ASTRA_ENDPOINT")
         self.db = AstraDB(token=token, api_endpoint=api_endpoint) if AstraDB and token and api_endpoint else None
         self.collection = collection
 

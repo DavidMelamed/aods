@@ -21,16 +21,18 @@ pip install -r requirements.txt
 
 ### Environment variables
 
-Set any API tokens required by optional connectors before running the
-pipeline. For example, supply your OpenAI key so the ``IdeaAgent`` can
-call the API:
+Copy `.env.example` to `.env` and fill in any credentials required by the
+connectors. The application loads these variables from the environment at
+runtime. At a minimum you should provide your OpenAI API key so the
+``IdeaAgent`` can call the language model:
 
 ```bash
-export OPENAI_API_KEY="sk-..."
+cp .env.example .env
+echo "OPENAI_API_KEY=sk-..." >> .env
 ```
 
-Other connectors use variables such as ``APIFY_TOKEN`` or ``SCRAPEOWL_KEY``.
-The pipeline will degrade gracefully if these are unset.
+Other connectors use variables such as ``APIFY_TOKEN`` or ``SCRAPEOWL_API_KEY``.
+If a variable is unset the corresponding connector will simply return no data.
 
 Run tests with `pytest`:
 
@@ -58,7 +60,7 @@ uvicorn aods.dashboard.api:app --reload
 
 ## Configuration
 
-Set the following environment variables to enable the live connectors:
+Set the following variables in your `.env` file to enable the live connectors:
 
 - `KEYWORD_API_URL` and `KEYWORD_API_TOKEN`
 - `AD_AUCTION_API_URL` and `AD_AUCTION_API_TOKEN`
@@ -109,15 +111,15 @@ These connectors are loaded only if their respective libraries are installed.
 
 ## Configuration
 
-Several connectors require API keys. Set these via environment variables before
+Several connectors require API keys. Define them in your `.env` file before
 running the pipeline:
 
 ```bash
-export EXA_API_KEY=<your-exa-key>
-export TAVILY_API_KEY=<your-tavily-key>
-export APIFY_TOKEN=<your-apify-token>
-export ASTRA_TOKEN=<your-astra-token>
-export ASTRA_ENDPOINT=<your-astra-endpoint>
+EXA_API_KEY=<your-exa-key>
+TAVILY_API_KEY=<your-tavily-key>
+APIFY_TOKEN=<your-apify-token>
+ASTRA_TOKEN=<your-astra-token>
+ASTRA_ENDPOINT=<your-astra-endpoint>
 ```
 
 The `DataForSEO*` connectors accept `API_KEY` and `API_SECRET` arguments or use
